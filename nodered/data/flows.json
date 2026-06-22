@@ -1,0 +1,272 @@
+[
+    {
+        "id": "e2f1e4a.1b5f218",
+        "type": "tab",
+        "label": "SYNAP Monitoring",
+        "disabled": false,
+        "info": "Flusso principale per il monitoraggio dei sensori SYNAP"
+    },
+    {
+        "id": "mqtt_in_ecg",
+        "type": "mqtt in",
+        "z": "e2f1e4a.1b5f218",
+        "name": "ECG Topic",
+        "topic": "synap/+/ecg",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mosquitto_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "check_fatigue"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_in_fsr",
+        "type": "mqtt in",
+        "z": "e2f1e4a.1b5f218",
+        "name": "FSR Topic",
+        "topic": "synap/+/fsr",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mosquitto_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 180,
+        "wires": [
+            [
+                "check_force"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_in_mpu",
+        "type": "mqtt in",
+        "z": "e2f1e4a.1b5f218",
+        "name": "MPU Topic",
+        "topic": "synap/+/mpu",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mosquitto_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 260,
+        "wires": [
+            [
+                "check_posture"
+            ]
+        ]
+    },
+    {
+        "id": "check_fatigue",
+        "type": "switch",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Fatigue > 60?",
+        "property": "payload.fatigue_index",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "0.6",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "format_fatigue_alert"
+            ]
+        ]
+    },
+    {
+        "id": "check_force",
+        "type": "switch",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Force > 80?",
+        "property": "payload.force_pct",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "80",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 330,
+        "y": 180,
+        "wires": [
+            [
+                "format_force_alert"
+            ]
+        ]
+    },
+    {
+        "id": "check_posture",
+        "type": "switch",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Angle X > 45?",
+        "property": "payload.angle_x",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "45",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 260,
+        "wires": [
+            [
+                "format_posture_alert"
+            ]
+        ]
+    },
+    {
+        "id": "format_fatigue_alert",
+        "type": "function",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Format Alert",
+        "func": "msg.payload = {\n    \"patient_id\": 1,\n    \"session_id\": 1,\n    \"parameter\": \"fatigue\",\n    \"value\": msg.payload.fatigue_index,\n    \"threshold\": 0.6,\n    \"severity\": \"warning\",\n    \"message\": \"Attenzione: rilevato affaticamento muscolare eccessivo.\"\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "http_post_alert"
+            ]
+        ]
+    },
+    {
+        "id": "format_force_alert",
+        "type": "function",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Format Alert",
+        "func": "msg.payload = {\n    \"patient_id\": 1,\n    \"session_id\": 1,\n    \"parameter\": \"fsr_force\",\n    \"value\": msg.payload.force_pct,\n    \"threshold\": 80,\n    \"severity\": \"critical\",\n    \"message\": \"Attenzione: forza applicata eccessiva, rischio infortunio.\"\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 180,
+        "wires": [
+            [
+                "http_post_alert"
+            ]
+        ]
+    },
+    {
+        "id": "format_posture_alert",
+        "type": "function",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Format Alert",
+        "func": "msg.payload = {\n    \"patient_id\": 1,\n    \"session_id\": 1,\n    \"parameter\": \"mpu_angle\",\n    \"value\": msg.payload.angle_x,\n    \"threshold\": 45,\n    \"severity\": \"warning\",\n    \"message\": \"Attenzione: postura scorretta del braccio.\"\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 260,
+        "wires": [
+            [
+                "http_post_alert"
+            ]
+        ]
+    },
+    {
+        "id": "http_post_alert",
+        "type": "http request",
+        "z": "e2f1e4a.1b5f218",
+        "name": "POST /alerts",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://backend:8000/alerts",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 770,
+        "y": 180,
+        "wires": [
+            [
+                "debug_node"
+            ]
+        ]
+    },
+    {
+        "id": "debug_node",
+        "type": "debug",
+        "z": "e2f1e4a.1b5f218",
+        "name": "Debug Output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "mosquitto_broker",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

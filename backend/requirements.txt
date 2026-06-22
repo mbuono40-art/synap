@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+aiomqtt
+pydantic
+python-dotenv
+sqlalchemy
+pyjwt
+python-multipart
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+websockets
+influxdb-client
+httpx
+firebase-admin

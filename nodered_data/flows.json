@@ -1,0 +1,128 @@
+[
+    {
+        "id": "tab1",
+        "type": "tab",
+        "label": "SYNAP Flow",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt_broker",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "influxdb_config",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "ws_listener",
+        "type": "websocket-listener",
+        "path": "/ws/wearable",
+        "wholemsg": "false"
+    },
+    {
+        "id": "mqtt_in",
+        "type": "mqtt in",
+        "z": "tab1",
+        "name": "Receive Sensor Data",
+        "topic": "synap/+/+",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "parse_function"
+            ]
+        ]
+    },
+    {
+        "id": "parse_function",
+        "type": "function",
+        "z": "tab1",
+        "name": "Parse and Route",
+        "func": "var topicParts = msg.topic.split('/');\nvar patient_id = topicParts[1];\nvar sensor_type = topicParts[2];\nvar value = parseFloat(msg.payload);\n\n// 1. Message for WebSockets\nvar wsMsg = {\n    payload: JSON.stringify({\n        patient_id: patient_id,\n        sensor_type: sensor_type,\n        value: value\n    })\n};\n\n// 2. Message for InfluxDB\n// Measurement: sensor_data\n// Tags: patient_id, sensor_type\n// Field: value\nvar influxMsg = {\n    payload: [{\n        value: value\n    }, {\n        patient_id: patient_id,\n        sensor_type: sensor_type\n    }],\n    measurement: \"sensor_data\"\n};\n\nreturn [wsMsg, influxMsg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 140,
+        "wires": [
+            [
+                "ws_out"
+            ],
+            [
+                "influx_out"
+            ]
+        ]
+    },
+    {
+        "id": "ws_out",
+        "type": "websocket out",
+        "z": "tab1",
+        "name": "Broadcast to App",
+        "server": "ws_listener",
+        "client": "",
+        "x": 650,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "influx_out",
+        "type": "influxdb out",
+        "z": "tab1",
+        "influxdb": "influxdb_config",
+        "name": "Save to DB",
+        "measurement": "sensor_data",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "synap_org",
+        "bucket": "synap_data",
+        "x": 630,
+        "y": 180,
+        "wires": []
+    }
+]

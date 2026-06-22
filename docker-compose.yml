@@ -1,0 +1,102 @@
+version: "3.8"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2
+      - ./influxdb/config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=synap_admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=synap_password123
+      - DOCKER_INFLUXDB_INIT_ORG=synap_org
+      - DOCKER_INFLUXDB_INIT_BUCKET=synap_data
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=synap_super_secret_token_123
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./backend/synap.db:/etc/grafana/synap.db
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=frser-sqlite-datasource
+    depends_on:
+      - influxdb
+
+  backend:
+    build: ./backend
+    container_name: synap_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=synap_super_secret_token_123
+      - INFLUXDB_ORG=synap_org
+      - INFLUXDB_BUCKET=synap_data
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    command: bash -c "npm install node-red-contrib-influxdb && npm start"
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered_data:/data
+    environment:
+      - TZ=Europe/Rome
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  mobile:
+    build: ./mobile_app/app_websocket
+    container_name: synap_mobile
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./mobile_app/app_websocket:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+    depends_on:
+      - backend
+
+volumes:
+  mosquitto_data:
+  influxdb_data:
+  grafana_data:

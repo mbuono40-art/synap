@@ -1,0 +1,34 @@
+# Ambiente locale e dipendenze
+node_modules/
+.npm/
+backend/__pycache__/
+backend/venv/
+
+# File ambientali con chiavi sensibili
+.env
+.env.local
+firebase-key.json
+google-services.json
+
+# Database e Data Volumes (Evita il merge di dati giganti o credenziali altrui)
+*.db
+*.sqlite3
+backend/synap.db
+
+# Docker Volumes
+mosquitto/data/
+mosquitto/log/
+influxdb/data/
+grafana/data/
+
+# Node-RED (Evita caricamento credenziali e librerie)
+nodered_data/node_modules/
+nodered_data/flows_cred.json
+nodered_data/.*
+# Conserva però i file principali come flows.json e settings.js
+!nodered_data/flows.json
+!nodered_data/settings.js
+
+# File di sistema
+.DS_Store
+*.log

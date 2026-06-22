@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>SSE Test</title>
+</head>
+<body>
+  <h1>Test Server-Sent Events</h1>
+
+  <pre id="log"></pre>
+
+  <script>
+    const log = document.getElementById("log");
+
+    const events = new EventSource("http://localhost:8000/sse/clock");
+    /* 
+    Nel file main.py abbiamo scritto yield f"event: clock\n". Grazie a questo, il client può usare addEventListener("clock", ...) 
+    per catturare solo quel tipo di messaggi (molto comodo se il server invia eventi di tipo diverso sullo stesso canale). 
+    */
+    events.addEventListener("clock", (event) => {
+      const data = JSON.parse(event.data);
+      log.textContent += `Evento ${data.counter}: ${data.server_time}\n`;
+    });
+
+    /*     
+    Riconnessione Automatica: Una caratteristica fantastica ed esclusiva di SSE (rispetto a WebSocket) è 
+    che se il server FastAPI si spegne o c'è un'interruzione della connessione, il browser tenta automaticamente 
+    di riconnettersi da solo, senza che tu debba scrivere codice aggiuntivo. onerror intercetta questi momenti 
+    di blackout temporaneo. 
+    */
+    events.onerror = () => {
+      log.textContent += "Errore o riconnessione SSE...\n";
+    };
+  </script>
+</body>
+</html>

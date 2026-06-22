@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    uid: influxdb_synap
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: synap_org
+      defaultBucket: synap_data
+    secureJsonData:
+      token: synap_super_secret_token_123
+    isDefault: true

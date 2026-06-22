@@ -1,0 +1,371 @@
+[
+    {
+        "id": "ec350902c0b52a05",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d95b724146abcc54",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cf4543c25266eeb6",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b6230fb92f0acd9c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "d7401180267412db",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "e4bcf6fc7aa2503c",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "96bec070685465f0",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "662c632ecaa79f59",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "e4bcf6fc7aa2503c",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "96bec070685465f0",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "19ab0c6aba9fcefd",
+        "type": "ui-group",
+        "name": "Group 1",
+        "page": "662c632ecaa79f59",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false,
+        "groupType": "default"
+    },
+    {
+        "id": "93ab9b756ab97dd6",
+        "type": "mqtt in",
+        "z": "ec350902c0b52a05",
+        "name": "",
+        "topic": "test/iomt",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "b6230fb92f0acd9c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 340,
+        "y": 220,
+        "wires": [
+            [
+                "23d4f38185fc1c66",
+                "214c0e8dc1b7fc0b"
+            ]
+        ]
+    },
+    {
+        "id": "23d4f38185fc1c66",
+        "type": "debug",
+        "z": "ec350902c0b52a05",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "214c0e8dc1b7fc0b",
+        "type": "function",
+        "z": "ec350902c0b52a05",
+        "name": "function 1",
+        "func": "msg.payload= Number(msg.payload);\nmsg.topic = \"heart_rate\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 320,
+        "wires": [
+            [
+                "0f4f1a184b42e049"
+            ]
+        ]
+    },
+    {
+        "id": "0f4f1a184b42e049",
+        "type": "influxdb out",
+        "z": "ec350902c0b52a05",
+        "influxdb": "d7401180267412db",
+        "name": "Db",
+        "measurement": "heart_rate",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "IoMT",
+        "bucket": "SensorTest",
+        "x": 610,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "641d767005fcf4fb",
+        "type": "mqtt in",
+        "z": "d95b724146abcc54",
+        "name": "",
+        "topic": "test/heart",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "b6230fb92f0acd9c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 260,
+        "y": 240,
+        "wires": [
+            [
+                "5c4d82beabdc0944"
+            ]
+        ]
+    },
+    {
+        "id": "5c4d82beabdc0944",
+        "type": "debug",
+        "z": "d95b724146abcc54",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "8710c35998beaca8",
+        "type": "ui-button",
+        "z": "cf4543c25266eeb6",
+        "group": "19ab0c6aba9fcefd",
+        "name": "ON",
+        "label": "ON",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "green",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 290,
+        "y": 180,
+        "wires": [
+            [
+                "cdc4f55451cd9df0"
+            ]
+        ]
+    },
+    {
+        "id": "adbaf5e2e93898a3",
+        "type": "ui-button",
+        "z": "cf4543c25266eeb6",
+        "group": "19ab0c6aba9fcefd",
+        "name": "OFF",
+        "label": "OFF",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "0",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 290,
+        "y": 280,
+        "wires": [
+            [
+                "cdc4f55451cd9df0"
+            ]
+        ]
+    },
+    {
+        "id": "cdc4f55451cd9df0",
+        "type": "mqtt out",
+        "z": "cf4543c25266eeb6",
+        "name": "",
+        "topic": "/ControlloLED",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "b6230fb92f0acd9c",
+        "x": 620,
+        "y": 220,
+        "wires": []
+    }
+]

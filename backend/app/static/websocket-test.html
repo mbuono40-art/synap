@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Test</title>
+</head>
+<body>
+  <h1>Test WebSocket</h1>
+
+  <input id="message" placeholder="Scrivi un messaggio" />
+  <button onclick="sendMessage()">Invia</button>
+
+  <pre id="log"></pre>
+
+  <script>
+    const log = document.getElementById("log");
+    const socket = new WebSocket("ws://localhost:8000/ws/chat");
+
+    //onopen: Si attiva quando il server fa l' accept().
+    socket.onopen = () => {
+      log.textContent += "Connesso al WebSocket\n";
+    };
+
+    //onmessage: Si attiva ogni volta che il server invia un send_text(). Qui la pagina intercetta la risposta e la stampa a schermo.
+    socket.onmessage = (event) => {
+      log.textContent += "Server: " + event.data + "\n";
+    };
+
+    socket.onclose = () => {
+      log.textContent += "Connessione chiusa\n";
+    };
+
+    //Quando l'utente clicca il bottone, la funzione prende il testo dall'input e lo invia  lungo il canale con socket.send().
+    function sendMessage() {
+      const input = document.getElementById("message");
+      socket.send(input.value);
+      log.textContent += "Client: " + input.value + "\n";
+      input.value = "";
+    }
+  </script>
+</body>
+</html>

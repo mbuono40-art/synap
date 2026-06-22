@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: SQLite_DB
+    type: frser-sqlite-datasource
+    uid: sqlite_synap
+    access: proxy
+    jsonData:
+      path: /etc/grafana/synap.db
